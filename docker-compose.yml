@@ -1,0 +1,105 @@
+services:
+  #  postgres db & postgres admin panel
+  pgadmin:
+    image: dpage/pgadmin4:latest
+    container_name: git-pgadmin
+    environment:
+      PGADMIN_DEFAULT_EMAIL: youremail@gmail.com
+      PGADMIN_DEFAULT_PASSWORD: your_password
+      PGADMIN_LISTEN_PORT: 8080
+    ports:
+      - "8080:8080"
+    depends_on:
+      - postgres
+    networks:
+      - live
+  postgres:
+    image: postgres:latest
+    container_name: git-postgres
+    environment:
+      POSTGRES_USER: admin
+      POSTGRES_PASSWORD: admin
+      POSTGRES_DB: ecommerce
+      PGDATA: /data/postgres
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    networks:
+      - live
+  backend:
+    build:
+      context: ./src
+      dockerfile: Dockerfile
+    container_name: git-backend
+    volumes:
+      - ./src:/app/
+    environment:
+      - ALLOWED_HOSTS=localhost,127.0.0.1
+      - DEBUG=True
+      - SECRET_KEY=HereIsYourSecret_Keyqweroqpowek12312313
+      - PostgresUser=admin
+      - PostgresPass=admin
+      - PostgresHost=postgres
+      - PostgresPort=5432
+      - PostgresName=ecommerce
+      - RedisHost=redis
+      - RedisPort=6379
+      - RedisDB=2
+    ports:
+      - "8000:8000"
+    command: sh -c "python manage.py migrate && python manage.py runserver 0.0.0.0:8000"
+    # following command is used in production mode
+    # command: sh -c "python manage.py migrate && gunicorn -c gunicorn.conf.py Auth.wsgi:application"
+    networks:
+      - live
+    restart: on-failure
+    depends_on:
+      - postgres
+      - redis
+
+  redis:
+    image: redis:7.0.11-alpine
+    container_name: git-redis
+    networks:
+      - live
+  rabbitmq:
+    image: rabbitmq:management
+    container_name: git-rabbitmq
+    ports:
+      - "5672:6572"
+      - "15672:15672"
+    networks:
+      - live
+  celery:
+    container_name: git-celery
+    build:
+      context: ./src
+      dockerfile: Dockerfile
+    command: celery --app=ecommerce worker -l INFO -Q tasks -B -E --concurrency=1
+    volumes:
+      - ./src:/app/
+    environment:
+      - ALLOWED_HOSTS=localhost,127.0.0.1
+      - DEBUG=True
+      - SECRET_KEY=HereIsYourSecret_Keyqweroqpowek12312313
+      - PostgresUser=admin
+      - PostgresPass=admin
+      - PostgresHost=postgres
+      - PostgresPort=5432
+      - PostgresName=ecommerce
+      - RedisHost=redis
+      - RedisPort=6379
+      - RedisDB=2
+    depends_on:
+      - backend
+      - redis
+      - rabbitmq
+      - postgres
+    networks:
+      - live
+volumes:
+  postgres_data:
+networks:
+  live:
+
