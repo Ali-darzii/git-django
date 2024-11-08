@@ -19,7 +19,7 @@ services:
     environment:
       POSTGRES_USER: admin
       POSTGRES_PASSWORD: admin
-      POSTGRES_DB: ecommerce
+      POSTGRES_DB: git
       PGDATA: /data/postgres
     ports:
       - "5432:5432"
@@ -42,7 +42,7 @@ services:
       - PostgresPass=admin
       - PostgresHost=postgres
       - PostgresPort=5432
-      - PostgresName=ecommerce
+      - PostgresName=git
       - RedisHost=redis
       - RedisPort=6379
       - RedisDB=2
@@ -76,7 +76,7 @@ services:
     build:
       context: ./src
       dockerfile: Dockerfile
-    command: celery --app=ecommerce worker -l INFO -Q tasks -B -E --concurrency=1
+    command: celery --app=git worker -l INFO -Q tasks -B -E --concurrency=1
     volumes:
       - ./src:/app/
     environment:
@@ -87,7 +87,7 @@ services:
       - PostgresPass=admin
       - PostgresHost=postgres
       - PostgresPort=5432
-      - PostgresName=ecommerce
+      - PostgresName=git
       - RedisHost=redis
       - RedisPort=6379
       - RedisDB=2

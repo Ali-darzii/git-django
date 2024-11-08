@@ -11,7 +11,7 @@ https://docs.djangoproject.com/en/5.0/ref/settings/
 """
 
 from pathlib import Path
-
+import os
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
@@ -78,8 +78,24 @@ WSGI_APPLICATION = 'git.wsgi.application'
 
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
+        'ENGINE': 'django.db.backends.postgresql',
+        'NAME': os.getenv('PostgresName'),
+        'USER': os.getenv('PostgresUser'),
+        'PASSWORD': os.getenv('PostgresPass'),
+        'HOST': os.getenv('PostgresHost'),
+        'PORT': os.getenv('PostgresPort'),
+    }
+}
+
+CACHES = {
+    'default': {
+        'BACKEND': 'django_redis.cache.RedisCache',
+        'LOCATION': f"redis://{os.environ.get('RedisHost', 'redis')}:{os.environ.get('RedisPort', '6379')}/{os.environ.get('RedisDB')}",
+        'OPTIONS': {
+            'CLIENT_CLASS': 'django_redis.client.DefaultClient',
+        },
+        "KEY_PREFIX": "cache",
+
     }
 }
 
@@ -132,6 +148,8 @@ REST_FRAMEWORK = {
     'PAGE_SIZE': 10,
     'DEFAULT_THROTTLE_RATES': {
         # (<allowed number of requests>, <period of time>)
-        'email_check': '20/minutes',
+        'email_check': '60/minutes',
+        'username_check': '60/minutes',
     }
 }
+AUTH_USER_MODEL = "auth_module.User"

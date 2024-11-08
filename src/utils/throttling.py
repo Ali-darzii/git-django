@@ -19,3 +19,7 @@ class NotAuthenticatedThrottle(SimpleRateThrottle):
 
 class EmailCheckThrottle(NotAuthenticatedThrottle):
     scope = 'email_check'
+
+
+class UsernameCheckThrottle(NotAuthenticatedThrottle):
+    scope = 'username_check'
