@@ -4,7 +4,7 @@ from rest_framework.throttling import SimpleRateThrottle
 class NotAuthenticatedThrottle(SimpleRateThrottle):
 
     def get_ident(self, request):
-        xci = request.META.get('X-Client-IP', None)
+        xci = request.META.get("X-Client-IP", None)
         return xci
 
     def get_cache_key(self, request, view):
@@ -12,14 +12,14 @@ class NotAuthenticatedThrottle(SimpleRateThrottle):
             return None  # Only throttle unauthenticated requests.
 
         return self.cache_format % {
-            'scope': self.scope,
-            'ident': self.get_ident(request)
+            "scope": self.scope,
+            "ident": self.get_ident(request)
         }
 
 
-class EmailCheckThrottle(NotAuthenticatedThrottle):
-    scope = 'email_check'
+class EmailOTPPostThrottle(NotAuthenticatedThrottle):
+    scope = "email_otp_post"
 
 
-class UsernameCheckThrottle(NotAuthenticatedThrottle):
-    scope = 'username_check'
+class EmailOTPPutThrottle(NotAuthenticatedThrottle):
+    scope = "email_otp_put"

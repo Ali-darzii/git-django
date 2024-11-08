@@ -12,6 +12,8 @@ https://docs.djangoproject.com/en/5.0/ref/settings/
 
 from pathlib import Path
 import os
+from datetime import timedelta
+
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
@@ -24,7 +26,7 @@ SECRET_KEY = 'django-insecure-pf^20+&qbm(8j-$!)0#m^o!#$d8(2qaw(_t85)5emybr&xfdy+
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['127.0.0.1', 'localhost']
 
 # Application definition
 
@@ -36,6 +38,7 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     # External
+    'django_user_agents',
     'rest_framework',
     'rest_framework_simplejwt',
     'rest_framework_simplejwt.token_blacklist',
@@ -51,6 +54,7 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'django_user_agents.middleware.UserAgentMiddleware',
 ]
 
 ROOT_URLCONF = 'git.urls'
@@ -98,6 +102,7 @@ CACHES = {
 
     }
 }
+CACHE_TIMEOUT = 3600
 
 # Password validation
 # https://docs.djangoproject.com/en/5.0/ref/settings/#auth-password-validators
@@ -148,8 +153,32 @@ REST_FRAMEWORK = {
     'PAGE_SIZE': 10,
     'DEFAULT_THROTTLE_RATES': {
         # (<allowed number of requests>, <period of time>)
-        'email_check': '60/minutes',
-        'username_check': '60/minutes',
+        'email_otp_post': '1/minutes',
+        'email_otp_put': '5/minutes',
     }
 }
 AUTH_USER_MODEL = "auth_module.User"
+OTP_TIME_EXPIRE_DATA = 300 # 5 min
+
+# todo: need AWS
+MEDIA_ROOT = BASE_DIR / '/uploads'
+MEDIA_URL = '/medias/'
+
+SIMPLE_JWT = {
+    "ACCESS_TOKEN_LIFETIME": timedelta(days=1),
+    "REFRESH_TOKEN_LIFETIME": timedelta(days=3),
+    'UPDATE_LAST_LOGIN': True,
+}
+
+EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+EMAIL_USE_TLS = True
+EMAIL_HOST = 'smtp.gmail.com'
+EMAIL_HOST_USER = 'ali.darrzi.1382@gmail.com'
+EMAIL_HOST_PASSWORD = 'pmmmvkfijdjbgrni'
+EMAIL_PORT = 587
+EMAIL_CODE_TIME_OUT = 180  # 3min
+
+# Celery configs
+CELERY_BROKER_URL = os.environ.get('CELERY_BROKER', 'amqp://guest:guest@rabbitmq:5672/')
+CELERY_RESULT_BACKEND = os.environ.get('CELERY_BACKEND',
+                                       f"redis://{os.environ.get('RedisHost', 'redis')}:{os.environ.get('RedisPort', '6379')}/{os.environ.get('RedisDB')}", )
