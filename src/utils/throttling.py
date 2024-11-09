@@ -17,9 +17,13 @@ class NotAuthenticatedThrottle(SimpleRateThrottle):
         }
 
 
-class EmailOTPPostThrottle(NotAuthenticatedThrottle):
-    scope = "email_otp_post"
+class RegisterEmailSendOTPThrottle(NotAuthenticatedThrottle):
+    scope = "register_email_send_otp"
 
 
-class EmailOTPPutThrottle(NotAuthenticatedThrottle):
-    scope = "email_otp_put"
+class IsActiveEmailSendOTPThrottle(NotAuthenticatedThrottle):
+    scope = "is_active_email_send_otp"
+
+
+class EmailCheckOTPThrottle(NotAuthenticatedThrottle):
+    scope = "email_check_otp"

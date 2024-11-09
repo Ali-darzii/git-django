@@ -11,3 +11,13 @@ def get_client_ip(request):
 
 def otp_code_generator():
     return random.randint(10000000, 99999999)
+
+
+def create_user_agent(request):
+    return {
+        "device_name": request.user_agent.device.family,
+        "is_phone": request.user_agent.is_mobile,
+        "browser": request.user_agent.browser.family,
+        "os": request.user_agent.os.family
+    }
+

@@ -19,7 +19,7 @@ class UserRegister(serializers.ModelSerializer):
 
 
 class UsernameCheckSerializer(serializers.Serializer):
-    username = serializers.CharField(max_length=150, required=True)
+    username = serializers.CharField(min_length=4, max_length=150, required=True)
 
     def validate_username(self, username: str):
         """
@@ -33,6 +33,8 @@ class UsernameCheckSerializer(serializers.Serializer):
 
 
 class SendOTPSerializer(serializers.ModelSerializer):
+    username = serializers.CharField(min_length=4, max_length=150, required=True)
+
     class Meta:
         model = User
         fields = ("email", "username", "password")
@@ -58,10 +60,10 @@ class SendOTPSerializer(serializers.ModelSerializer):
 
     def validate(self, attr):
         if self.context["request"].method == "PUT":
-            token = attr.get("tk")
-            if token is None:
+            tk = attr.get("tk")
+            if tk is None:
                 raise serializers.ValidationError("tk is required.")
-            if not token.isdigit():
+            if not tk.isdigit():
                 raise serializers.ValidationError("tk must be digit in string.")
         attrs = super(SendOTPSerializer, self).validate(attr)
         return attrs
@@ -78,3 +80,17 @@ class CheckOTPSerializer(serializers.ModelSerializer):
         if not tk.isdigit():
             raise serializers.ValidationError(ErrorResponses.BAD_FORMAT)
         return tk
+
+
+class LoginSerializer(serializers.Serializer):
+    email = serializers.EmailField(required=False)
+    username = serializers.CharField(min_length=4, max_length=150, required=False)
+    password = serializers.CharField(max_length=128, required=True)
+         
+
+    def validate(self, attrs):
+        """ ether username or email must have given"""
+        if attrs.get("email") is None and attrs.get("username") is None:
+            raise serializers.ValidationError("Ether email or username must have given.")
+        attrs = super(IsActiveSendOTPSerializer, self).validate(attrs)
+        return attrs

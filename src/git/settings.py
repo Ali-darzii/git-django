@@ -153,12 +153,13 @@ REST_FRAMEWORK = {
     'PAGE_SIZE': 10,
     'DEFAULT_THROTTLE_RATES': {
         # (<allowed number of requests>, <period of time>)
-        'email_otp_post': '1/minutes',
-        'email_otp_put': '5/minutes',
+        'register_email_send_otp': '3/minutes',
+        'is_active_email_send_otp': '3/minutes',
+        'email_check_otp': '5/minutes',
     }
 }
 AUTH_USER_MODEL = "auth_module.User"
-OTP_TIME_EXPIRE_DATA = 300 # 5 min
+OTP_TIME_EXPIRE_DATA = 60 # 1 min
 
 # todo: need AWS
 MEDIA_ROOT = BASE_DIR / '/uploads'
